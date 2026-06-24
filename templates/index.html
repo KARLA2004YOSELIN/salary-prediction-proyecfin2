@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predicción de Salario - Inteligencia Artificial</title>
+    <!-- Google Fonts: Outfit -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --primary: #6366f1;
+            --primary-glow: rgba(99, 102, 241, 0.4);
+            --primary-hover: #4f46e5;
+            --accent: #10b981;
+            --accent-glow: rgba(16, 185, 129, 0.3);
+            --error: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(at 10% 20%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+                radial-gradient(at 90% 80%, rgba(16, 185, 129, 0.1) 0px, transparent 50%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            backdrop-filter: blur(16px);
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 
+                        0 0 50px rgba(99, 102, 241, 0.1);
+            animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-weight: 800;
+            font-size: 2.5rem;
+            text-align: center;
+            background: linear-gradient(135deg, #f8fafc 30%, #a5b4fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-bottom: 35px;
+            font-weight: 300;
+        }
+
+        form {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+        }
+
+        @media (max-width: 768px) {
+            form {
+                grid-template-columns: 1fr;
+            }
+            .container {
+                padding: 24px;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+
+        @media (max-width: 768px) {
+            .form-group.full-width {
+                grid-column: span 1;
+            }
+        }
+
+        label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #c084fc;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        input, select {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            color: var(--text-main);
+            padding: 14px 16px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            outline: none;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-glow);
+            background: rgba(15, 23, 42, 0.8);
+        }
+
+        input::placeholder {
+            color: #475569;
+        }
+
+        /* Customize select arrow */
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            background-size: 18px;
+            padding-right: 40px;
+        }
+
+        .btn-submit {
+            grid-column: span 2;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            padding: 16px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px var(--primary-glow);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .btn-submit {
+                grid-column: span 1;
+            }
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        /* Results Panel */
+        .result-panel {
+            margin-top: 35px;
+            padding: 24px;
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px dashed var(--accent);
+            border-radius: 16px;
+            text-align: center;
+            display: none;
+            animation: slideDown 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-title {
+            color: var(--accent);
+            font-weight: 600;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
+
+        .result-value {
+            font-size: 2.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 6px;
+        }
+
+        .result-desc {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        /* Error message */
+        .error-message {
+            grid-column: span 2;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--error);
+            color: #fca5a5;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            display: none;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .error-message {
+                grid-column: span 1;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Predicción Salarial IA</h1>
+    <p class="subtitle">Ingresa tus datos laborales reales para calcular una predicción precisa de salario anual estimado.</p>
+    
+    <form id="predictionForm">
+        <!-- Job Title -->
+        <div class="form-group">
+            <label for="job_title">Puesto de Trabajo</label>
+            <select id="job_title" name="job_title" required>
+                <option value="" disabled selected>Selecciona puesto...</option>
+                <option value="AI Engineer">AI Engineer</option>
+                <option value="Data Analyst">Data Analyst</option>
+                <option value="Frontend Developer">Frontend Developer</option>
+                <option value="Business Analyst">Business Analyst</option>
+                <option value="Product Manager">Product Manager</option>
+                <option value="Backend Developer">Backend Developer</option>
+                <option value="Machine Learning Engineer">Machine Learning Engineer</option>
+                <option value="DevOps Engineer">DevOps Engineer</option>
+                <option value="Software Engineer">Software Engineer</option>
+                <option value="Cybersecurity Analyst">Cybersecurity Analyst</option>
+                <option value="Data Scientist">Data Scientist</option>
+                <option value="Cloud Engineer">Cloud Engineer</option>
+            </select>
+        </div>
+
+        <!-- Experience Years -->
+        <div class="form-group">
+            <label for="experience_years">Años de Experiencia</label>
+            <input type="number" id="experience_years" name="experience_years" min="0" max="40" placeholder="Ej. 5" required>
+        </div>
+
+        <!-- Education Level -->
+        <div class="form-group">
+            <label for="education_level">Nivel Educativo</label>
+            <select id="education_level" name="education_level" required>
+                <option value="" disabled selected>Selecciona nivel...</option>
+                <option value="High School">High School / Bachillerato</option>
+                <option value="Diploma">Diploma / Carrera Técnica</option>
+                <option value="Bachelor">Bachelor / Licenciatura</option>
+                <option value="Master">Master / Maestría</option>
+                <option value="PhD">PhD / Doctorado</option>
+            </select>
+        </div>
+
+        <!-- Skills Count -->
+        <div class="form-group">
+            <label for="skills_count">Cantidad de Habilidades</label>
+            <input type="number" id="skills_count" name="skills_count" min="1" max="25" placeholder="Ej. 7" required>
+        </div>
+
+        <!-- Certifications -->
+        <div class="form-group">
+            <label for="certifications">Certificaciones</label>
+            <input type="number" id="certifications" name="certifications" min="0" max="15" placeholder="Ej. 2" required>
+        </div>
+
+        <!-- Industry -->
+        <div class="form-group">
+            <label for="industry">Industria</label>
+            <select id="industry" name="industry" required>
+                <option value="" disabled selected>Selecciona industria...</option>
+                <option value="Healthcare">Healthcare</option>
+                <option value="Telecom">Telecom</option>
+                <option value="Media">Media</option>
+                <option value="Retail">Retail</option>
+                <option value="Manufacturing">Manufacturing</option>
+                <option value="Education">Education</option>
+                <option value="Finance">Finance</option>
+                <option value="Technology">Technology</option>
+                <option value="Consulting">Consulting</option>
+                <option value="Government">Government</option>
+            </select>
+        </div>
+
+        <!-- Company Size -->
+        <div class="form-group">
+            <label for="company_size">Tamaño de la Empresa</label>
+            <select id="company_size" name="company_size" required>
+                <option value="" disabled selected>Selecciona tamaño...</option>
+                <option value="Startup">Startup (Pequeña)</option>
+                <option value="Small">Small (Mediana-Baja)</option>
+                <option value="Medium">Medium (Mediana)</option>
+                <option value="Large">Large (Grande)</option>
+                <option value="Enterprise">Enterprise (Corporativo)</option>
+            </select>
+        </div>
+
+        <!-- Location -->
+        <div class="form-group">
+            <label for="location">Ubicación Geográfica</label>
+            <select id="location" name="location" required>
+                <option value="" disabled selected>Selecciona país...</option>
+                <option value="USA">Estados Unidos (USA)</option>
+                <option value="UK">Reino Unido (UK)</option>
+                <option value="Canada">Canadá</option>
+                <option value="Germany">Alemania</option>
+                <option value="Sweden">Suecia</option>
+                <option value="Netherlands">Países Bajos (Netherlands)</option>
+                <option value="Singapore">Singapur</option>
+                <option value="Australia">Australia</option>
+                <option value="India">India</option>
+                <option value="Remote">Remoto Internacional</option>
+            </select>
+        </div>
+
+        <!-- Remote Work -->
+        <div class="form-group full-width">
+            <label for="remote_work">Modalidad de Trabajo</label>
+            <select id="remote_work" name="remote_work" required>
+                <option value="" disabled selected>Selecciona modalidad...</option>
+                <option value="Yes">Remoto 100% (Yes)</option>
+                <option value="No">Presencial (No)</option>
+                <option value="Hybrid">Híbrido (Hybrid)</option>
+            </select>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn-submit" id="submitBtn">
+            <span>Calcular Salario Estimado</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+        </button>
+
+        <!-- Error container -->
+        <div class="error-message" id="errorMsg">Ocurrió un error al procesar la predicción. Inténtalo de nuevo.</div>
+    </form>
+
+    <!-- Results Panel -->
+    <div class="result-panel" id="resultPanel">
+        <div class="result-title">Salario Anual Estimado Predicho</div>
+        <div class="result-value" id="resultValue">$0.00 USD</div>
+        <div class="result-desc">Predicción calculada exitosamente mediante el pipeline del modelo con PCA.</div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('predictionForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const submitBtn = document.getElementById('submitBtn');
+        const resultPanel = document.getElementById('resultPanel');
+        const errorMsg = document.getElementById('errorMsg');
+        
+        // Setup state
+        submitBtn.disabled = true;
+        submitBtn.querySelector('span').innerText = 'Procesando...';
+        resultPanel.style.display = 'none';
+        errorMsg.style.display = 'none';
+        
+        // Extract inputs
+        const formData = new FormData(this);
+        const data = {};
+        formData.forEach((value, key) => {
+            // Convert to numbers where necessary
+            if (['experience_years', 'skills_count', 'certifications'].includes(key)) {
+                data[key] = parseFloat(value);
+            } else {
+                data[key] = value;
+            }
+        });
+        
+        try {
+            const response = await fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+            
+            const result = await response.json();
+            
+            if (response.ok && result.success) {
+                // Formatear el salario como moneda USD
+                const salaryFormatted = new Intl.NumberFormat('en-US', {
+                    style: 'currency',
+                    currency: 'USD',
+                    maximumFractionDigits: 0
+                }).format(result.salary);
+                
+                document.getElementById('resultValue').innerText = `${salaryFormatted} USD`;
+                resultPanel.style.display = 'block';
+            } else {
+                errorMsg.innerText = result.error || 'Ocurrió un error inesperado al procesar la predicción.';
+                errorMsg.style.display = 'block';
+            }
+        } catch (error) {
+            console.error(error);
+            errorMsg.innerText = 'Error al conectar con el servidor. Por favor, comprueba tu conexión.';
+            errorMsg.style.display = 'block';
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.querySelector('span').innerText = 'Calcular Salario Estimado';
+        }
+    });
+</script>
+
+</body>
+</html>
